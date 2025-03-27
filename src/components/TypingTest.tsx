@@ -8,17 +8,12 @@ import { Clock, ArrowRight, Sparkles, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-interface TypingTestProps {
-  onComplete: (results: { wpm: number; accuracy: number; time: number }) => void;
-  onProgress: (value: number) => void;
-}
-
-const TypingTest = ({ onComplete, onProgress }: TypingTestProps) => {
+const TypingTest = () => {
   const [phrase, setPhrase] = useState("");
   const [input, setInput] = useState("");
   const [isStarted, setIsStarted] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const [startTime, setStartTime] = useState<number | null>(null);
+  const [startTime, setStartTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [progress, setProgress] = useState(0);
   const [stats, setStats] = useState<TypingStats>({
@@ -33,6 +28,39 @@ const TypingTest = ({ onComplete, onProgress }: TypingTestProps) => {
   const isMobile = useIsMobile();
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<number | null>(null);
+  
+  // Calculate and set final stats
+  const completeTest = useCallback(() => {
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+    }
+    
+    let correctChars = 0;
+    let incorrectChars = 0;
+    
+    for (let i = 0; i < input.length; i++) {
+      if (i < phrase.length && input[i] === phrase[i]) {
+        correctChars++;
+      } else {
+        incorrectChars++;
+      }
+    }
+    
+    const finalTime = elapsedTime;
+    const wpm = calculateWPM(correctChars, finalTime);
+    const accuracy = calculateAccuracy(correctChars, correctChars + incorrectChars);
+    
+    setStats({
+      wpm,
+      accuracy,
+      correctChars,
+      incorrectChars,
+      totalChars: phrase.length,
+      timeElapsed: finalTime
+    });
+    
+    setIsFinished(true);
+  }, [input, phrase, elapsedTime]);
   
   // Generate a random phrase on mount or restart
   useEffect(() => {
@@ -87,7 +115,7 @@ const TypingTest = ({ onComplete, onProgress }: TypingTestProps) => {
     if (isStarted && input.length >= phrase.length) {
       completeTest();
     }
-  }, [input, phrase, isStarted]);
+  }, [input, phrase, isStarted, completeTest]);
   
   // Start the test
   const startTest = () => {
@@ -108,40 +136,6 @@ const TypingTest = ({ onComplete, onProgress }: TypingTestProps) => {
       setInput(e.target.value);
     }
   };
-  
-  // Calculate and set final stats
-  const completeTest = useCallback(() => {
-    if (timerRef.current) {
-      window.clearInterval(timerRef.current);
-    }
-    
-    let correctChars = 0;
-    let incorrectChars = 0;
-    
-    for (let i = 0; i < input.length; i++) {
-      if (i < phrase.length && input[i] === phrase[i]) {
-        correctChars++;
-      } else {
-        incorrectChars++;
-      }
-    }
-    
-    const finalTime = elapsedTime;
-    const wpm = calculateWPM(correctChars, finalTime);
-    const accuracy = calculateAccuracy(correctChars, correctChars + incorrectChars);
-    
-    setStats({
-      wpm,
-      accuracy,
-      correctChars,
-      incorrectChars,
-      totalChars: phrase.length,
-      timeElapsed: finalTime
-    });
-    
-    setIsFinished(true);
-    onComplete({ wpm, accuracy, time: finalTime });
-  }, [input, phrase, elapsedTime, onComplete]);
   
   // Restart the test
   const restartTest = () => {
