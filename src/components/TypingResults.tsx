@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +6,14 @@ import { Clock, RefreshCw, Trophy, Keyboard } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TypingResultsProps {
-  stats: TypingStats;
-  onRestart: () => void;
+  results: {
+    wpm: number;
+    accuracy: number;
+    time: number;
+  };
 }
 
-const TypingResults = ({ stats, onRestart }: TypingResultsProps) => {
+const TypingResults = ({ results }: TypingResultsProps) => {
   const [showAnimation, setShowAnimation] = useState(false);
   const isMobile = useIsMobile();
   
@@ -36,46 +38,24 @@ const TypingResults = ({ stats, onRestart }: TypingResultsProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 md:space-y-8">
-          <div className="grid grid-cols-2 gap-3 md:gap-4">
-            <div className="stat-card animate-scale-in" style={{ animationDelay: '0.2s' }}>
-              <div className="text-3xl md:text-4xl font-bold tracking-tighter mb-1 gradient-text">{stats.wpm}</div>
-              <div className="text-xs md:text-sm text-muted-foreground font-medium">WPM</div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="p-4 bg-muted rounded-lg">
+              <div className="text-3xl font-bold">{results.wpm.toFixed(1)}</div>
+              <div className="text-sm text-muted-foreground">WPM</div>
             </div>
-            <div className="stat-card animate-scale-in" style={{ animationDelay: '0.4s' }}>
-              <div className="text-3xl md:text-4xl font-bold tracking-tighter mb-1 gradient-text">{stats.accuracy}%</div>
-              <div className="text-xs md:text-sm text-muted-foreground font-medium">Accuracy</div>
+            <div className="p-4 bg-muted rounded-lg">
+              <div className="text-3xl font-bold">{results.accuracy.toFixed(1)}%</div>
+              <div className="text-sm text-muted-foreground">Accuracy</div>
             </div>
-          </div>
-          
-          <div className="space-y-3 animate-slide-up" style={{ animationDelay: '0.6s' }}>
-            <div className="flex items-center justify-between p-2 md:p-3 bg-secondary/30 rounded-lg">
-              <span className="text-xs md:text-sm font-medium flex items-center">
-                <Clock size={isMobile ? 14 : 16} className="mr-2 text-primary" />
-                Time
-              </span>
-              <span className="font-medium text-sm md:text-base">
-                {formatTime(stats.timeElapsed)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-2 md:p-3 bg-secondary/30 rounded-lg">
-              <span className="text-xs md:text-sm font-medium flex items-center">
-                <Keyboard size={isMobile ? 14 : 16} className="mr-2 text-primary" />
-                Characters
-              </span>
-              <span className="font-medium text-sm md:text-base">
-                <span className="text-primary">{stats.correctChars}</span>
-                <span className="mx-1 text-muted-foreground">/</span>
-                <span className="text-destructive">{stats.incorrectChars}</span>
-                <span className="mx-1 text-muted-foreground">/</span>
-                <span>{stats.totalChars}</span>
-              </span>
+            <div className="p-4 bg-muted rounded-lg">
+              <div className="text-3xl font-bold">{results.time.toFixed(1)}s</div>
+              <div className="text-sm text-muted-foreground">Time</div>
             </div>
           </div>
         </CardContent>
         <CardFooter>
           <Button 
             className="w-full flex items-center gap-2 transition-all bg-primary hover:bg-primary/90 animate-pulse-light"
-            onClick={onRestart}
           >
             <RefreshCw size={isMobile ? 14 : 16} />
             Try Again

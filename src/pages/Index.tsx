@@ -1,27 +1,48 @@
-import { useState, useEffect } from "react";
-import TypingTest from "@/components/TypingTest";
-import { useIsMobile } from "@/hooks/use-mobile";
-import FloatingWords from "@/components/FloatingWords";
-import TypewriterText from "@/components/TypewriterText";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import ThemeToggle from "@/components/ThemeToggle";
+import TypewriterText from "@/components/TypewriterText";
+import FloatingWords from "@/components/FloatingWords";
+import TypingTest from "@/components/TypingTest";
+import TypingResults from "@/components/TypingResults";
+import { HighScores } from "@/components/HighScores";
+import { addHighScore, isHighScore } from "@/utils/highScore";
 
 const Index = () => {
-  const [mounted, setMounted] = useState(false);
-  const isMobile = useIsMobile();
-  
-  const scrollToAbout = () => {
-    const aboutSection = document.getElementById('about');
-    aboutSection?.scrollIntoView({ behavior: 'smooth' });
+  const [isStarted, setIsStarted] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [results, setResults] = useState<{
+    wpm: number;
+    accuracy: number;
+    time: number;
+  } | null>(null);
+  const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleStart = () => {
+    setIsStarted(true);
+    setIsCompleted(false);
+    setProgress(0);
+    setResults(null);
   };
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  if (!mounted) {
-    return null;
-  }
-  
+
+  const handleComplete = (results: { wpm: number; accuracy: number; time: number }) => {
+    setIsCompleted(true);
+    setResults(results);
+    
+    // Save high score if it qualifies
+    if (isHighScore(results.wpm)) {
+      addHighScore(results);
+    }
+  };
+
+  const handleProgress = (value: number) => {
+    setProgress(value);
+  };
+
   return (
     <div className="min-h-screen flex flex-col px-4 py-8 md:py-16 relative overflow-hidden">
       <ThemeToggle />
@@ -73,7 +94,37 @@ const Index = () => {
         </div>
         
         <div className="relative z-10 w-full max-w-3xl animate-scale-in" style={{ animationDelay: '0.6s' }}>
-          <TypingTest />
+          {!isStarted ? (
+            <div className="text-center space-y-4">
+              <TypewriterText text="Test your typing speed!" />
+              <p className="text-muted-foreground">
+                Type the text as accurately and quickly as possible.
+              </p>
+              <Button size="lg" onClick={handleStart}>
+                Start Typing
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Progress value={progress} className="h-2" />
+              <TypingTest
+                onComplete={handleComplete}
+                onProgress={handleProgress}
+              />
+            </div>
+          )}
+
+          {isCompleted && results && (
+            <div className="space-y-8">
+              <TypingResults results={results} />
+              <div className="flex justify-center gap-4">
+                <Button onClick={handleStart}>Try Again</Button>
+                <Button variant="outline" onClick={() => setIsStarted(false)}>
+                  Back to Start
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="mt-8 md:mt-16 text-center text-xs md:text-sm text-muted-foreground animate-fade-in opacity-80 relative z-10" style={{ animationDelay: '0.8s' }}>
@@ -93,6 +144,10 @@ const Index = () => {
             <p className="text-sm text-muted-foreground">© 2024 @vnshkumar</p>
           </div>
         </div>
+      </div>
+
+      <div className="mt-12">
+        <HighScores />
       </div>
     </div>
   );

@@ -8,12 +8,17 @@ import { Clock, ArrowRight, Sparkles, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const TypingTest = () => {
+interface TypingTestProps {
+  onComplete: (results: { wpm: number; accuracy: number; time: number }) => void;
+  onProgress: (value: number) => void;
+}
+
+const TypingTest = ({ onComplete, onProgress }: TypingTestProps) => {
   const [phrase, setPhrase] = useState("");
   const [input, setInput] = useState("");
   const [isStarted, setIsStarted] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const [startTime, setStartTime] = useState(0);
+  const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [progress, setProgress] = useState(0);
   const [stats, setStats] = useState<TypingStats>({
@@ -135,7 +140,8 @@ const TypingTest = () => {
     });
     
     setIsFinished(true);
-  }, [input, phrase, elapsedTime]);
+    onComplete({ wpm, accuracy, time: finalTime });
+  }, [input, phrase, elapsedTime, onComplete]);
   
   // Restart the test
   const restartTest = () => {
