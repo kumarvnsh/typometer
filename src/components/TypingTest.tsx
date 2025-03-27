@@ -29,39 +29,6 @@ const TypingTest = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<number | null>(null);
   
-  // Calculate and set final stats
-  const completeTest = useCallback(() => {
-    if (timerRef.current) {
-      window.clearInterval(timerRef.current);
-    }
-    
-    let correctChars = 0;
-    let incorrectChars = 0;
-    
-    for (let i = 0; i < input.length; i++) {
-      if (i < phrase.length && input[i] === phrase[i]) {
-        correctChars++;
-      } else {
-        incorrectChars++;
-      }
-    }
-    
-    const finalTime = elapsedTime;
-    const wpm = calculateWPM(correctChars, finalTime);
-    const accuracy = calculateAccuracy(correctChars, correctChars + incorrectChars);
-    
-    setStats({
-      wpm,
-      accuracy,
-      correctChars,
-      incorrectChars,
-      totalChars: phrase.length,
-      timeElapsed: finalTime
-    });
-    
-    setIsFinished(true);
-  }, [input, phrase, elapsedTime]);
-  
   // Generate a random phrase on mount or restart
   useEffect(() => {
     const newPhrase = getRandomPhrase();
@@ -115,7 +82,7 @@ const TypingTest = () => {
     if (isStarted && input.length >= phrase.length) {
       completeTest();
     }
-  }, [input, phrase, isStarted, completeTest]);
+  }, [input, phrase, isStarted]);
   
   // Start the test
   const startTest = () => {
@@ -136,6 +103,39 @@ const TypingTest = () => {
       setInput(e.target.value);
     }
   };
+  
+  // Calculate and set final stats
+  const completeTest = useCallback(() => {
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+    }
+    
+    let correctChars = 0;
+    let incorrectChars = 0;
+    
+    for (let i = 0; i < input.length; i++) {
+      if (i < phrase.length && input[i] === phrase[i]) {
+        correctChars++;
+      } else {
+        incorrectChars++;
+      }
+    }
+    
+    const finalTime = elapsedTime;
+    const wpm = calculateWPM(correctChars, finalTime);
+    const accuracy = calculateAccuracy(correctChars, correctChars + incorrectChars);
+    
+    setStats({
+      wpm,
+      accuracy,
+      correctChars,
+      incorrectChars,
+      totalChars: phrase.length,
+      timeElapsed: finalTime
+    });
+    
+    setIsFinished(true);
+  }, [input, phrase, elapsedTime]);
   
   // Restart the test
   const restartTest = () => {

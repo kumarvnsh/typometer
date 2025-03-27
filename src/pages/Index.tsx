@@ -4,15 +4,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import FloatingWords from "@/components/FloatingWords";
 import TypewriterText from "@/components/TypewriterText";
 import ThemeToggle from "@/components/ThemeToggle";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
 
 const Index = () => {
   const [mounted, setMounted] = useState(false);
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
   
   const scrollToAbout = () => {
     const aboutSection = document.getElementById('about');
@@ -57,10 +52,9 @@ const Index = () => {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center space-y-16">
-        {/* Typing Test Section */}
-        <div className="w-full max-w-3xl space-y-8">
-          <div className="text-center">
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="w-full max-w-3xl mx-auto space-y-8 md:space-y-12 text-center animate-slide-down relative z-10">
+          <div className="flex flex-col items-center">
             <div className="inline-block bg-secondary/80 backdrop-blur-sm text-xs md:text-sm font-medium px-3 py-1 md:px-4 md:py-1.5 rounded-full mb-6 md:mb-8 shadow-sm animate-pulse-light">
               Measure your typing prowess
             </div>
@@ -76,44 +70,14 @@ const Index = () => {
               Challenge yourself with random phrases and see how quickly you can type with accuracy.
             </p>
           </div>
-          
-          <div className="animate-scale-in" style={{ animationDelay: '0.6s' }}>
-            <TypingTest />
-          </div>
-          
-          <div className="text-center text-xs md:text-sm text-muted-foreground animate-fade-in opacity-80" style={{ animationDelay: '0.8s' }}>
-            <p>Type the text above as quickly and accurately as you can</p>
-          </div>
         </div>
-
-        {/* Word Fall Game Section */}
-        <div className="w-full max-w-3xl">
-          <Card className="p-8 bg-card/80 backdrop-blur-sm">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="flex-1 text-center md:text-left">
-                <h2 className="text-3xl font-bold mb-4 gradient-text">Word Fall Challenge</h2>
-                <p className="text-lg mb-6">
-                  Ready for a new typing challenge? Try our Word Fall game! Catch falling words before they reach the bottom.
-                  As you progress, the words get longer and fall faster. Can you beat your high score?
-                </p>
-                <Button 
-                  size="lg" 
-                  onClick={() => navigate('/wordfall')}
-                  className="group"
-                >
-                  Start Word Fall
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </div>
-              <div className="flex-1">
-                <div className="relative h-48 bg-muted/20 rounded-lg overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-2xl font-mono animate-bounce">Word Fall</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
+        
+        <div className="relative z-10 w-full max-w-3xl animate-scale-in" style={{ animationDelay: '0.6s' }}>
+          <TypingTest />
+        </div>
+        
+        <div className="mt-8 md:mt-16 text-center text-xs md:text-sm text-muted-foreground animate-fade-in opacity-80 relative z-10" style={{ animationDelay: '0.8s' }}>
+          <p>Type the text above as quickly and accurately as you can</p>
         </div>
       </div>
 
